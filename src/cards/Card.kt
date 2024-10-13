@@ -6,9 +6,28 @@ package cards
  */
 data class Card(val color: Color?, val value: Int?) : Comparable<Card> {
 
+
     companion object {
 
-        fun fromString(string: String): Card {
+        fun readUntilValid(placableCards: Collection<Card>): Card {
+            print("Choose a card to play: ")
+
+            while (true) {
+                try {
+                    val card = fromString(readln())
+
+                    if (card in placableCards) {
+                        return card
+                    }
+
+                    print("Please choose one of the options: ")
+                } catch (e: IllegalArgumentException) {
+                    print("Invalid card, try again: ")
+                }
+            }
+        }
+
+        private fun fromString(string: String): Card {
             require(string.length == 2)
             val color = Color.fromLetter(string[0])
             val value = "${string[1]}".toIntOrNull()
@@ -28,17 +47,16 @@ data class Card(val color: Color?, val value: Int?) : Comparable<Card> {
     }
 
     fun canBePlacedOn(card: Card): Boolean {
-        return (color == card.color && value == card.value) ||
-                (color == card.color && value == null) ||
-                (color == null && value == card.value) ||
-                (color == null && value == null)
+        return color == null ||
+                value == null ||
+                (card.color == null && card.value == null) ||
+                (card.color != null && card.value == null && color == card.color) ||
+                (card.color == null && card.value != null && value == card.value) ||
+                (card.color != null && card.value != null && (color == card.color || value == card.value))
     }
 
     override fun compareTo(other: Card): Int {
-        return Comparator.nullsFirst(
-            Comparator.comparing<Card, Color> { it.color!! }
-                .thenComparingInt { it.value!! }
-        ).compare(this, other)
+        return compareValuesBy(this, other, { it.color }, { it.value })
     }
 
     override fun toString(): String {

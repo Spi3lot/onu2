@@ -27,15 +27,22 @@ class Hand private constructor() {
     }
 
     fun add(card: Card) {
-        cards.add(card)
+        val index = cards.binarySearch(card)
+
+        if (index < 0) {
+            cards.add(index.inv(), card)
+        } else {
+            cards.add(index, card)
+        }
     }
 
     fun remove(card: Card) {
         cards.remove(card)
     }
 
-    fun scanPlaceOptions(card: Card): List<Card> {
-        return cards.filter { it.canBePlacedOn(card) }
+    fun findPlacableCards(topOfStack: Card): Set<Card> {
+        return cards.filter { it.canBePlacedOn(topOfStack) }
+            .toSet()
     }
 
     override fun toString(): String {
