@@ -9,14 +9,14 @@ data class Card(val color: Color?, val value: Int?) : Comparable<Card> {
 
     companion object {
 
-        fun readUntilValid(placableCards: Collection<Card>): Card {
-            print("Choose a card to play: ")
+        fun readUntilValid(placableCards: Collection<Card>): Card? {
+            print("Choose a card to play or press ENTER to draw: ")
 
             while (true) {
                 try {
-                    val card = fromString(readln())
+                    val card = fromStringOrNull(readln())
 
-                    if (card in placableCards) {
+                    if (card == null || card in placableCards) {
                         return card
                     }
 
@@ -27,7 +27,11 @@ data class Card(val color: Color?, val value: Int?) : Comparable<Card> {
             }
         }
 
-        private fun fromString(string: String): Card {
+        private fun fromStringOrNull(string: String): Card? {
+            if (string.isEmpty()) {
+                return null
+            }
+
             require(string.length == 2)
             val color = Color.fromLetter(string[0])
             val value = "${string[1]}".toIntOrNull()

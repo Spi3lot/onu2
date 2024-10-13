@@ -7,7 +7,7 @@ import cards.Hand
  *  @since 13.10.2024, So.
  *  @author Emilio Zottel
  */
-class ConsoleGame {
+class ConsoleGame(private var drawUntilValid: Boolean) {
 
     private lateinit var topOfStack: Card
 
@@ -19,49 +19,87 @@ class ConsoleGame {
         reset()
     }
 
-    private fun reset() {
+    fun reset() {
         topOfStack = Card.random()
         botHand = Hand.random(7)
         yourHand = Hand.random(7)
     }
 
     fun play() {
-        while (!botHand.isEmpty && !yourHand.isEmpty) {
-            val yourOptions = yourHand.findPlacableCards(topOfStack)
-            println("Top of stack: $topOfStack\n")
+        var yourTurn = true
 
-            if (yourOptions.isEmpty()) {
-                print("You: No options, draw a card...")
-                readln()
+        while (!botHand.isEmpty && !yourHand.isEmpty) {
+            if (yourTurn) {
+                println("---------- YOU ----------")
+                yourTurn()
+            } else {
+                println("---------- BOT ----------")
+                botTurn()
+            }
+
+            yourTurn = !yourTurn
+        }
+
+        printWinner()
+    }
+
+    private fun yourTurn() {
+        val yourOptions = yourHand.findPlacableCards(topOfStack)
+        println("Top of stack: $topOfStack")
+
+        if (yourOptions.isEmpty()) {
+            print("No options, draw a card...\n")
+            readln()
+            yourHand.add(Card.random())
+
+            if (drawUntilValid) {
+                yourTurn()
+            }
+        } else {
+            println("\n${yourHand.size} cards remaining: $yourHand")
+            println("Options (${yourOptions.size}): $yourOptions")
+            val card = Card.readUntilValid(yourOptions)
+
+            if (card == null) {
+                println("Drawing a card...")
                 yourHand.add(Card.random())
             } else {
-                println("Your hand (${yourHand.size}): $yourHand")
-                println("Options (${yourOptions.size}): $yourOptions")
-                val card = Card.readUntilValid(yourOptions)
+                println("Playing $card")
                 yourHand.remove(card)
                 topOfStack = card
             }
 
             println()
-            val botOptions = botHand.findPlacableCards(topOfStack)
+        }
+    }
 
-            if (botOptions.isEmpty()) {
-                botHand.add(Card.random())
-                println("Bot: No options, drawing a card...")
-            } else {
-                val card = botOptions.random()
-                botHand.remove(card)
-                topOfStack = card
-                println("Bot: Playing $card")
+    private fun botTurn() {
+        val botOptions = botHand.findPlacableCards(topOfStack)
+
+        if (botOptions.isEmpty()) {
+            botHand.add(Card.random())
+            println("No options, drawing a card...")
+
+            if (drawUntilValid) {
+                botTurn()
             }
-
-            println("Bot: ${botHand.size} cards left\n")
+        } else {
+            val card = botOptions.random()
+            botHand.remove(card)
+            topOfStack = card
+            println("Playing $card")
+            println("${botHand.size} cards remaining\n")
         }
 
+    }
+
+    private fun printWinner() {
         if (yourHand.isEmpty) {
             println("You win!")
-        } else {
+        } else if (botHand.isEmpty) {
             println("Bot wins!")
+        } else {
+            error("No winner yet")
         }
     }
 

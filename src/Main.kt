@@ -5,5 +5,6 @@ import game.ConsoleGame
  *  @author Emilio Zottel
  */
 fun main() {
-    ConsoleGame().play()
+    val game = ConsoleGame(false)
+    game.play()
 }
