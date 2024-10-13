@@ -6,7 +6,6 @@ package cards
  */
 enum class Color {
 
-
     RED, GREEN, BLUE, YELLOW;
 
     val letter: Char
@@ -14,12 +13,13 @@ enum class Color {
 
     companion object {
 
-        fun fromLetter(letter: Char): Color {
-            return when (letter) {
+        fun fromLetter(letter: Char): Color? {
+            return when (letter.uppercaseChar()) {
                 'R' -> RED
                 'G' -> GREEN
                 'B' -> BLUE
                 'Y' -> YELLOW
+                '?' -> null
                 else -> throw IllegalArgumentException("Invalid color letter: $letter")
             }
         }

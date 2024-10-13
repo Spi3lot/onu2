@@ -34,8 +34,8 @@ class Hand private constructor() {
         cards.remove(card)
     }
 
-    fun canPlaceOn(card: Card): Boolean {
-        return cards.any { it.canBePlacedOn(card) }
+    fun scanPlaceOptions(card: Card): List<Card> {
+        return cards.filter { it.canBePlacedOn(card) }
     }
 
     override fun toString(): String {
